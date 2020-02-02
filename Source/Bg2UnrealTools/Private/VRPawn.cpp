@@ -52,7 +52,8 @@ void AVRPawn::PreInitializeComponents()
 {
 	Super::PreInitializeComponents();
 	
-	if (AddControlsMapping)
+	auto World = GetWorld();
+	if (AddControlsMapping && World != nullptr && World->GetFirstPlayerController())
 	{
 		TArray<FInputActionKeyMapping> controllers = {
 			// Right controller
@@ -78,7 +79,7 @@ void AVRPawn::PreInitializeComponents()
 
 		for (auto& inputKey : controllers)
 		{
-			GetWorld()->GetFirstPlayerController()->PlayerInput->AddEngineDefinedActionMapping(inputKey);
+			World->GetFirstPlayerController()->PlayerInput->AddEngineDefinedActionMapping(inputKey);
 		}
 
 		TArray<FInputAxisKeyMapping> controllersAxis = {
@@ -90,7 +91,7 @@ void AVRPawn::PreInitializeComponents()
 
 		for (auto& inputAxis : controllersAxis)
 		{
-			GetWorld()->GetFirstPlayerController()->PlayerInput->AddAxisMapping(inputAxis);
+			World->GetFirstPlayerController()->PlayerInput->AddAxisMapping(inputAxis);
 		}
 	}
 
