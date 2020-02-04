@@ -33,6 +33,11 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 		CurrentHit = ParabolicLineTrace(10, 0.1f, 500.0f);
 		InteractWithHit(CurrentHit);
 	}
+	else if (Interaction == IM_Touch)
+	{
+		CurrentHit = StraightLineTrace(50.0f);
+		InteractWithHit(CurrentHit);
+	}
 }
 
 void UInteractionComponent::BeginTeleport()
@@ -45,6 +50,15 @@ void UInteractionComponent::BeginTeleport()
 
 void UInteractionComponent::EndTeleport()
 {
+	if (FocusObject != nullptr && FocusObject->Implements<UObjectInteractionInterface>())
+	{
+		if (FocusComponent != nullptr && FocusComponent->Implements<UObjectInteractionInterface>())
+		{
+			IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
+		}
+
+		IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
+	}
 	Interaction = IM_None;
 }
 
@@ -58,6 +72,15 @@ void UInteractionComponent::BeginTouch()
 
 void UInteractionComponent::EndTouch()
 {
+	if (FocusObject != nullptr && FocusObject->Implements<UObjectInteractionInterface>())
+	{
+		if (FocusComponent != nullptr && FocusComponent->Implements<UObjectInteractionInterface>())
+		{
+			IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
+		}
+
+		IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
+	}
 	Interaction = IM_None;
 }
 
@@ -71,6 +94,15 @@ void UInteractionComponent::BeginGrip()
 
 void UInteractionComponent::EndGrip()
 {
+	if (FocusObject != nullptr && FocusObject->Implements<UObjectInteractionInterface>())
+	{
+		if (FocusComponent != nullptr && FocusComponent->Implements<UObjectInteractionInterface>())
+		{
+			IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
+		}
+
+		IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
+	}
 	Interaction = IM_None;
 }
 
@@ -110,6 +142,27 @@ FHitResult UInteractionComponent::ParabolicLineTrace(int Steps, float TimeStep, 
 	return tempHit;
 }
 
+FHitResult UInteractionComponent::StraightLineTrace(float distance)
+{
+	FHitResult Hit;
+	FVector initLoc = GetComponentLocation();
+	FHitResult tempHit;
+	FCollisionQueryParams traceParams(FName(TEXT("StraightTrace")), true, nullptr);
+	traceParams.bTraceComplex = false;
+	FVector end = initLoc + (GetForwardVector() * distance);
+	DrawDebugLine(GetWorld(), initLoc, end, FColor::Yellow, false, 0, 0, 1);
+	if (GetWorld()->LineTraceSingleByChannel(
+		tempHit,
+		initLoc,
+		end,
+		ECollisionChannel::ECC_Visibility,
+		traceParams))
+	{
+		Hit = tempHit;
+	}
+	return Hit;
+}
+
 void UInteractionComponent::InteractWithHit(FHitResult Hit)
 {
 	FHitResult inHit = Hit;
@@ -118,32 +171,32 @@ void UInteractionComponent::InteractWithHit(FHitResult Hit)
 
 	// TODO: Modificar ObjectInteractionInterface para tratar las acciones de teleport, touch y grip en lugar de
 	// TraceLeave, TraceHit, TraceHit, etc..
-	if (FocusObject != nullptr)
+	if (FocusObject != nullptr && FocusObject->Implements<UObjectInteractionInterface>())
 	{
-		IObjectInteractionInterface::Execute_TraceMove(FocusObject.GetObject(), inHit);
+		IObjectInteractionInterface::Execute_TraceMove(FocusObject, inHit, Interaction);
 
 		if (FocusComponent != inHitComponent)
 		{
-			IObjectInteractionInterface::Execute_TraceLeaveComponent(FocusObject.GetObject(), inHit, FocusComponent);
+			IObjectInteractionInterface::Execute_TraceLeaveComponent(FocusObject, inHit, FocusComponent, Interaction);
 
-			IObjectInteractionInterface::Execute_TraceHitComponent(FocusObject.GetObject(), inHit, inHitComponent);
+			IObjectInteractionInterface::Execute_TraceHitComponent(FocusObject, inHit, inHitComponent, Interaction);
 
-			IObjectInteractionInterface::Execute_TraceLeaveObject(FocusObject.GetObject(), inHit);
+			IObjectInteractionInterface::Execute_TraceLeaveObject(FocusObject, inHit, Interaction);
 
 			FocusObject = nullptr;
 			FocusComponent = nullptr;
-
-			
-			if (inHitActor->Implements<UObjectInteractionInterface>())
-			{
-				IObjectInteractionInterface::Execute_TraceHitObject(inHitActor, inHit);
-				IObjectInteractionInterface::Execute_TraceHitComponent(inHitActor, inHit, inHitComponent);
-
-				FocusObject.SetObject(inHitActor);
-				FocusObject.SetInterface(Cast<IObjectInteractionInterface>(inHitActor));
-				FocusComponent = inHitComponent;
-			}
 		}
+	}
+
+	if (inHitActor != nullptr && inHitActor->Implements<UObjectInteractionInterface>())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit actor"));
+
+		IObjectInteractionInterface::Execute_TraceHitObject(inHitActor, inHit, Interaction);
+		IObjectInteractionInterface::Execute_TraceHitComponent(inHitActor, inHit, inHitComponent, Interaction);
+
+		FocusObject = inHitActor;
+		FocusComponent = inHitComponent;
 	}
 
 

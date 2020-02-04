@@ -205,22 +205,22 @@ void AVRPawn::RightThumbRight_Release()
 
 void AVRPawn::RightTrigger_Press()
 {
-	UE_LOG(LogTemp, Warning, TEXT("R Trigger Press"));
+	RightInteraction->BeginTouch();
 }
 
 void AVRPawn::RightTrigger_Release()
 {
-	UE_LOG(LogTemp, Warning, TEXT("R Trigger Release"));
+	RightInteraction->EndTouch();
 }
 
 void AVRPawn::RightGrip_Press()
 {
-	UE_LOG(LogTemp, Warning, TEXT("R Grip Press"));
+	RightInteraction->BeginGrip();
 }
 
 void AVRPawn::RightGrip_Release()
 {
-	UE_LOG(LogTemp, Warning, TEXT("R Grip Release"));
+	RightInteraction->EndGrip();
 }
 
 void AVRPawn::RightThumbX(float amount)
@@ -287,22 +287,22 @@ void AVRPawn::LeftThumbRight_Release()
 
 void AVRPawn::LeftTrigger_Press()
 {
-	UE_LOG(LogTemp, Warning, TEXT("L Trigger Press"));
+	LeftInteraction->BeginTouch();
 }
 
 void AVRPawn::LeftTrigger_Release()
 {
-	UE_LOG(LogTemp, Warning, TEXT("L Trigger Release"));
+	LeftInteraction->EndTouch();
 }
 
 void AVRPawn::LeftGrip_Press()
 {
-	UE_LOG(LogTemp, Warning, TEXT("L Grip Press"));
+	LeftInteraction->BeginGrip();
 }
 
 void AVRPawn::LeftGrip_Release()
 {
-	UE_LOG(LogTemp, Warning, TEXT("L Grip Release"));
+	LeftInteraction->EndGrip();
 }
 
 void AVRPawn::LeftThumbX(float amount)

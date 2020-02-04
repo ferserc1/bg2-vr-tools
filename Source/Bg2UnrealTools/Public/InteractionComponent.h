@@ -9,14 +9,6 @@
 #include "ObjectInteractionInterface.h"
 #include "InteractionComponent.generated.h"
 
-UENUM(BlueprintType)
-enum InteracionMode
-{
-	IM_None = 0,
-	IM_Teleport,
-	IM_Touch,
-	IM_Grip
-};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BG2VRTOOLS_API UInteractionComponent : public USceneComponent
@@ -32,7 +24,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
-	TEnumAsByte<InteracionMode> Interaction;
+	TEnumAsByte<InteractionMode> Interaction;
 
 public:	
 	// Called every frame
@@ -60,13 +52,16 @@ public:
 	FHitResult ParabolicLineTrace(int Steps, float TimeStep, float Speed);
 
 	UFUNCTION(BlueprintCallable, Category = "VR")
+	FHitResult StraightLineTrace(float distance);
+
+	UFUNCTION(BlueprintCallable, Category = "VR")
 	void InteractWithHit(FHitResult Hit);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
 	UPrimitiveComponent * FocusComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
-	TScriptInterface<IObjectInteractionInterface> FocusObject;
+	AActor * FocusObject;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
 	FHitResult CurrentHit;
