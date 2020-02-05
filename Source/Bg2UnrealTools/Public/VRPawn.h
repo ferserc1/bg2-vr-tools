@@ -46,6 +46,8 @@ protected:
 
 	FVector2D RightThumbAxis;
 	FVector2D LeftThumbAxis;
+	TEnumAsByte<ThumbDirectionButton> RightThumbButton;
+	TEnumAsByte<ThumbDirectionButton> LeftThumbButton;
 
 public:	
 
@@ -55,35 +57,23 @@ public:
 	
 	void RightThumb_Press();
 	void RightThumb_Release();
-	void RightThumbUp_Press();
-	void RightThumbUp_Release();
-	void RightThumbDown_Press();
-	void RightThumbDown_Release();
-	void RightThumbLeft_Press();
-	void RightThumbLeft_Release();
-	void RightThumbRight_Press();
-	void RightThumbRight_Release();
 	void RightTrigger_Press();
 	void RightTrigger_Release();
 	void RightGrip_Press();
 	void RightGrip_Release();
 	void RightThumbX(float amount);
 	void RightThumbY(float amount);
+	void RightThumbDirection_Press(ThumbDirectionButton direction);
+	void RightThumbDirection_Release(ThumbDirectionButton direction);
 
 	void LeftThumb_Press();
 	void LeftThumb_Release();
-	void LeftThumbUp_Press();
-	void LeftThumbUp_Release();
-	void LeftThumbDown_Press();
-	void LeftThumbDown_Release();
-	void LeftThumbLeft_Press();
-	void LeftThumbLeft_Release();
-	void LeftThumbRight_Press();
-	void LeftThumbRight_Release();
 	void LeftTrigger_Press();
 	void LeftTrigger_Release();
 	void LeftGrip_Press();
 	void LeftGrip_Release();
 	void LeftThumbX(float amount);
 	void LeftThumbY(float amount);
+	void LeftThumbDirection_Press(ThumbDirectionButton direction);
+	void LeftThumbDirection_Release(ThumbDirectionButton direction);
 };

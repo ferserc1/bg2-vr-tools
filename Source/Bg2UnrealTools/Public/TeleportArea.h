@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ObjectInteractionInterface.h"
+#include "TeleportTargetInterface.h"
 #include "TeleportArea.generated.h"
 
 UCLASS()
-class BG2VRTOOLS_API ATeleportArea : public AActor, public IObjectInteractionInterface
+class BG2VRTOOLS_API ATeleportArea : public AActor, public ITeleportTargetInterface
 {
 	GENERATED_BODY()
 	
@@ -25,6 +25,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-	virtual void TraceHitObject_Implementation(FHitResult hit, InteractionMode interaction) override;
-	virtual void EndAction_Implementation(FHitResult Hit, InteractionMode interaction) override;
+	virtual void TeleportMove_Implementation(FHitResult hit) override;
+	virtual void EndTeleport_Implementation(FHitResult Hit) override;
 };

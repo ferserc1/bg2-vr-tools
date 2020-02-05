@@ -6,8 +6,17 @@
 #include "Components/SceneComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "GameFramework/Actor.h"
-#include "ObjectInteractionInterface.h"
+#include "InteractionMode.h"
 #include "InteractionComponent.generated.h"
+
+UENUM(BlueprintType)
+enum ThumbDirectionButton {
+	TB_None,
+	TB_Up,
+	TB_Down,
+	TB_Left,
+	TB_Right
+};
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -49,10 +58,16 @@ public:
 	void EndGrip();
 
 	UFUNCTION(BlueprintCallable, Category = "VR")
+	void DirectionButtonPress(ThumbDirectionButton Button);
+
+	UFUNCTION(BlueprintCallable, Category = "VR")
+	void DirectionButtonRelease(ThumbDirectionButton Button);
+
+	UFUNCTION(BlueprintCallable, Category = "VR")
 	FHitResult ParabolicLineTrace(int Steps, float TimeStep, float Speed);
 
 	UFUNCTION(BlueprintCallable, Category = "VR")
-	FHitResult StraightLineTrace(float distance);
+	bool StraightLineTrace(float distance, FHitResult & result);
 
 	UFUNCTION(BlueprintCallable, Category = "VR")
 	void InteractWithHit(FHitResult Hit);

@@ -27,35 +27,26 @@ void ATeleportArea::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-void ATeleportArea::TraceHitObject_Implementation(FHitResult hit, InteractionMode interaction)
+void ATeleportArea::TeleportMove_Implementation(FHitResult hit)
 {
-	if (interaction == IM_Teleport)
-	{
-		DrawDebugSphere(
-			GetWorld(),
-			hit.Location,
-			10.0f,
-			5,
-			FColor::Red,
-			false,
-			0.0f
-		);
-	}
+	DrawDebugSphere(
+		GetWorld(),
+		hit.Location,
+		10.0f,
+		5,
+		FColor::Red,
+		false,
+		0.0f
+	);
 }
 
-void ATeleportArea::EndAction_Implementation(FHitResult hit, InteractionMode interaction)
+void ATeleportArea::EndTeleport_Implementation(FHitResult hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("TraceLeaveObject teleport area"));
-	if (interaction == IM_Teleport)
+	auto World = GetWorld();
+	if (World)
 	{
-		// Mover el pawn a esta posición
-		auto World = GetWorld();
-		if (World)
-		{
-			auto PlayerController = World->GetFirstPlayerController();
-			PlayerController->GetPawn()->SetActorLocation(hit.Location);
-		}
-
+		auto PlayerController = World->GetFirstPlayerController();
+		PlayerController->GetPawn()->SetActorLocation(hit.Location);
 	}
 }
 

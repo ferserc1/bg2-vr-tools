@@ -2,8 +2,12 @@
 
 
 #include "InteractionComponent.h"
+#include "TeleportTargetInterface.h"
+#include "TouchTargetInterface.h"
+#include "GripTargetInterface.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 UInteractionComponent::UInteractionComponent()
@@ -28,15 +32,18 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	CurrentHit = FHitResult();
 	if (Interaction == IM_Teleport)
 	{
 		CurrentHit = ParabolicLineTrace(10, 0.1f, 500.0f);
 		InteractWithHit(CurrentHit);
 	}
-	else if (Interaction == IM_Touch)
+	else if (Interaction == IM_None)
 	{
-		CurrentHit = StraightLineTrace(50.0f);
-		InteractWithHit(CurrentHit);
+		if (StraightLineTrace(100.0f, CurrentHit))
+		{
+			InteractWithHit(CurrentHit);
+		}
 	}
 }
 
@@ -50,14 +57,9 @@ void UInteractionComponent::BeginTeleport()
 
 void UInteractionComponent::EndTeleport()
 {
-	if (FocusObject != nullptr && FocusObject->Implements<UObjectInteractionInterface>())
+	if (FocusObject != nullptr && FocusObject->Implements<UTeleportTargetInterface>())
 	{
-		if (FocusComponent != nullptr && FocusComponent->Implements<UObjectInteractionInterface>())
-		{
-			IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
-		}
-
-		IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
+		ITeleportTargetInterface::Execute_EndTeleport(FocusObject, CurrentHit);
 	}
 	Interaction = IM_None;
 }
@@ -67,19 +69,15 @@ void UInteractionComponent::BeginTouch()
 	if (Interaction == IM_None)
 	{
 		Interaction = IM_Touch;
+		InteractWithHit(CurrentHit);
 	}
 }
 
 void UInteractionComponent::EndTouch()
 {
-	if (FocusObject != nullptr && FocusObject->Implements<UObjectInteractionInterface>())
+	if (FocusObject != nullptr && FocusObject->Implements<UTouchTargetInterface>())
 	{
-		if (FocusComponent != nullptr && FocusComponent->Implements<UObjectInteractionInterface>())
-		{
-			IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
-		}
-
-		IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
+		ITouchTargetInterface::Execute_EndTouch(FocusObject, CurrentHit);
 	}
 	Interaction = IM_None;
 }
@@ -94,16 +92,66 @@ void UInteractionComponent::BeginGrip()
 
 void UInteractionComponent::EndGrip()
 {
-	if (FocusObject != nullptr && FocusObject->Implements<UObjectInteractionInterface>())
+	if (FocusObject != nullptr && FocusObject->Implements<UGripTargetInterface>())
 	{
-		if (FocusComponent != nullptr && FocusComponent->Implements<UObjectInteractionInterface>())
-		{
-			IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
-		}
-
-		IObjectInteractionInterface::Execute_EndAction(FocusObject, CurrentHit, Interaction);
+		IGripTargetInterface::Execute_EndGrip(FocusObject, CurrentHit);
 	}
 	Interaction = IM_None;
+}
+
+void UInteractionComponent::DirectionButtonPress(ThumbDirectionButton Button)
+{
+	
+}
+
+void UInteractionComponent::DirectionButtonRelease(ThumbDirectionButton Button)
+{
+	if (Button == TB_Left)
+	{
+		// Rotar a la izquierda
+		auto pawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+		if (pawn)
+		{	
+			FRotator NewRotation = FRotator(0.0f, -22.5f, 0.0f);
+			pawn->AddActorLocalRotation(FQuat(NewRotation), false, 0, ETeleportType::None);
+		}
+	}
+	else if (Button == TB_Right)
+	{
+		// Rotar a la derecha
+		auto pawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+		if (pawn)
+		{
+			FRotator NewRotation = FRotator(0.0f, 22.5f, 0.0f);
+			pawn->AddActorLocalRotation(FQuat(NewRotation), false, 0, ETeleportType::None);
+		}
+	}
+	//else if (Button == TB_Up)
+	//{
+	//	// Avanzar
+	//	auto World = GetWorld();
+	//	if (World)
+	//	{
+	//		auto PlayerController = World->GetFirstPlayerController();
+	//		auto Pawn = PlayerController->GetPawn();
+	//		auto distance = 100.0f;
+	//		FVector NewLocation = Pawn->GetActorLocation() - (GetForwardVector() * distance);
+	//		Pawn->SetActorLocation(NewLocation);
+	//	}
+	//}
+	//else if (Button == TB_Down)
+	//{
+	//	// Retroceder
+	//	auto World = GetWorld();
+	//	if (World)
+	//	{
+	//		auto PlayerController = World->GetFirstPlayerController();
+	//		auto Pawn = PlayerController->GetPawn();
+	//		auto distance = -100.0f;
+	//		FVector NewLocation = Pawn->GetActorLocation() - (GetForwardVector() * distance);
+	//		Pawn->SetActorLocation(NewLocation);
+	//	}
+	//}
 }
 
 FHitResult UInteractionComponent::ParabolicLineTrace(int Steps, float TimeStep, float Speed)
@@ -142,15 +190,13 @@ FHitResult UInteractionComponent::ParabolicLineTrace(int Steps, float TimeStep, 
 	return tempHit;
 }
 
-FHitResult UInteractionComponent::StraightLineTrace(float distance)
+bool UInteractionComponent::StraightLineTrace(float distance, FHitResult& result)
 {
-	FHitResult Hit;
 	FVector initLoc = GetComponentLocation();
 	FHitResult tempHit;
 	FCollisionQueryParams traceParams(FName(TEXT("StraightTrace")), true, nullptr);
 	traceParams.bTraceComplex = false;
 	FVector end = initLoc + (GetForwardVector() * distance);
-	DrawDebugLine(GetWorld(), initLoc, end, FColor::Yellow, false, 0, 0, 1);
 	if (GetWorld()->LineTraceSingleByChannel(
 		tempHit,
 		initLoc,
@@ -158,9 +204,17 @@ FHitResult UInteractionComponent::StraightLineTrace(float distance)
 		ECollisionChannel::ECC_Visibility,
 		traceParams))
 	{
-		Hit = tempHit;
+		result = tempHit;
+		if (result.Actor->Implements<UTouchTargetInterface>())
+		{
+			DrawDebugLine(GetWorld(), initLoc, initLoc + (GetForwardVector() * tempHit.Distance), FColor::Yellow, false, 0, 0, 1);
+		}
+		return true;
 	}
-	return Hit;
+	else
+	{
+		return false;
+	}
 }
 
 void UInteractionComponent::InteractWithHit(FHitResult Hit)
@@ -169,35 +223,28 @@ void UInteractionComponent::InteractWithHit(FHitResult Hit)
 	UPrimitiveComponent * inHitComponent = inHit.Component.Get();
 	AActor * inHitActor = Hit.Actor.Get();
 
-	// TODO: Modificar ObjectInteractionInterface para tratar las acciones de teleport, touch y grip en lugar de
-	// TraceLeave, TraceHit, TraceHit, etc..
-	if (FocusObject != nullptr && FocusObject->Implements<UObjectInteractionInterface>())
+	if (FocusObject != nullptr)
 	{
-		IObjectInteractionInterface::Execute_TraceMove(FocusObject, inHit, Interaction);
-
-		if (FocusComponent != inHitComponent)
+		if (FocusObject->Implements<UTeleportTargetInterface>() && Interaction == IM_Teleport)
 		{
-			IObjectInteractionInterface::Execute_TraceLeaveComponent(FocusObject, inHit, FocusComponent, Interaction);
-
-			IObjectInteractionInterface::Execute_TraceHitComponent(FocusObject, inHit, inHitComponent, Interaction);
-
-			IObjectInteractionInterface::Execute_TraceLeaveObject(FocusObject, inHit, Interaction);
-
-			FocusObject = nullptr;
-			FocusComponent = nullptr;
+			ITeleportTargetInterface::Execute_TeleportMove(FocusObject, Hit);
 		}
+
+		if (FocusObject->Implements<UTouchTargetInterface>() && Interaction == IM_Touch)
+		{
+			ITouchTargetInterface::Execute_TouchMove(FocusObject, Hit);
+		}
+
+		if (FocusObject->Implements<UGripTargetInterface>() && Interaction == IM_Grip)
+		{
+			IGripTargetInterface::Execute_GripMove(FocusObject, Hit);
+		}
+
+		FocusObject = nullptr;
 	}
 
-	if (inHitActor != nullptr && inHitActor->Implements<UObjectInteractionInterface>())
+	if (inHitActor != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit actor"));
-
-		IObjectInteractionInterface::Execute_TraceHitObject(inHitActor, inHit, Interaction);
-		IObjectInteractionInterface::Execute_TraceHitComponent(inHitActor, inHit, inHitComponent, Interaction);
-
 		FocusObject = inHitActor;
-		FocusComponent = inHitComponent;
 	}
-
-
 }

@@ -9,6 +9,8 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/PlayerInput.h"
 
+static float THUMB_DIRECTION_BUTTON_OFFSET = 0.5f;
+
 // Sets default values
 AVRPawn::AVRPawn()
 {
@@ -113,14 +115,6 @@ void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	// Right actions
 	PlayerInputComponent->BindAction("RightThumb", IE_Pressed, this, &AVRPawn::RightThumb_Press);
 	PlayerInputComponent->BindAction("RightThumb", IE_Released, this, &AVRPawn::RightThumb_Release);
-	PlayerInputComponent->BindAction("RightThumbUp", IE_Pressed, this, &AVRPawn::RightThumbUp_Press);
-	PlayerInputComponent->BindAction("RightThumbUp", IE_Released, this, &AVRPawn::RightThumbUp_Release);
-	PlayerInputComponent->BindAction("RightThumbDown", IE_Pressed, this, &AVRPawn::RightThumbDown_Press);
-	PlayerInputComponent->BindAction("RightThumbDown", IE_Released, this, &AVRPawn::RightThumbDown_Release);
-	PlayerInputComponent->BindAction("RightThumbLeft", IE_Pressed, this, &AVRPawn::RightThumbLeft_Press);
-	PlayerInputComponent->BindAction("RightThumbLeft", IE_Released, this, &AVRPawn::RightThumbLeft_Release);
-	PlayerInputComponent->BindAction("RightThumbRight", IE_Pressed, this, &AVRPawn::RightThumbRight_Press);
-	PlayerInputComponent->BindAction("RightThumbRight", IE_Released, this, &AVRPawn::RightThumbRight_Release);
 	PlayerInputComponent->BindAction("RightTrigger", IE_Pressed, this, &AVRPawn::RightTrigger_Press);
 	PlayerInputComponent->BindAction("RightTrigger", IE_Released, this, &AVRPawn::RightTrigger_Release);
 	PlayerInputComponent->BindAction("RightGrip", IE_Pressed, this, &AVRPawn::RightGrip_Press);
@@ -133,14 +127,6 @@ void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	// Left actions
 	PlayerInputComponent->BindAction("LeftThumb", IE_Pressed, this, &AVRPawn::LeftThumb_Press);
 	PlayerInputComponent->BindAction("LeftThumb", IE_Released, this, &AVRPawn::LeftThumb_Release);
-	PlayerInputComponent->BindAction("LeftThumbUp", IE_Pressed, this, &AVRPawn::LeftThumbUp_Press);
-	PlayerInputComponent->BindAction("LeftThumbUp", IE_Released, this, &AVRPawn::LeftThumbUp_Release);
-	PlayerInputComponent->BindAction("LeftThumbDown", IE_Pressed, this, &AVRPawn::LeftThumbDown_Press);
-	PlayerInputComponent->BindAction("LeftThumbDown", IE_Released, this, &AVRPawn::LeftThumbDown_Release);
-	PlayerInputComponent->BindAction("LeftThumbLeft", IE_Pressed, this, &AVRPawn::LeftThumbLeft_Press);
-	PlayerInputComponent->BindAction("LeftThumbLeft", IE_Released, this, &AVRPawn::LeftThumbLeft_Release);
-	PlayerInputComponent->BindAction("LeftThumbRight", IE_Pressed, this, &AVRPawn::LeftThumbRight_Press);
-	PlayerInputComponent->BindAction("LeftThumbRight", IE_Released, this, &AVRPawn::LeftThumbRight_Release);
 	PlayerInputComponent->BindAction("LeftTrigger", IE_Pressed, this, &AVRPawn::LeftTrigger_Press);
 	PlayerInputComponent->BindAction("LeftTrigger", IE_Released, this, &AVRPawn::LeftTrigger_Release);
 	PlayerInputComponent->BindAction("LeftGrip", IE_Pressed, this, &AVRPawn::LeftGrip_Press);
@@ -153,54 +139,48 @@ void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AVRPawn::RightThumb_Press()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("R Thumb Press. Axis=%.2f,%.2f"), RightThumbAxis.X, RightThumbAxis.Y);
-	RightInteraction->BeginTeleport();
+	if (RightThumbAxis.X < -THUMB_DIRECTION_BUTTON_OFFSET)
+	{
+		RightThumbButton = TB_Left;
+	}
+	else if (RightThumbAxis.X > THUMB_DIRECTION_BUTTON_OFFSET)
+	{
+		RightThumbButton = TB_Right;
+	}
+	else if (RightThumbAxis.Y < -THUMB_DIRECTION_BUTTON_OFFSET)
+	{
+		RightThumbButton = TB_Down;
+	}
+	else if (RightThumbAxis.Y > THUMB_DIRECTION_BUTTON_OFFSET)
+	{
+		RightThumbButton = TB_Up;
+	}
+	else {
+		RightThumbButton = TB_None;
+	}
+
+	if (RightThumbButton != TB_None)
+	{
+		RightThumbDirection_Press(RightThumbButton);
+	}
+	else
+	{
+		RightInteraction->BeginTeleport();
+	}
 }
 
 void AVRPawn::RightThumb_Release()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("R Thumb Release"));
-	RightInteraction->EndTeleport();
-}
+	if (RightThumbButton != TB_None)
+	{
+		RightThumbDirection_Release(RightThumbButton);
+	}
+	else
+	{
+		RightInteraction->EndTeleport();
+	}
 
-void AVRPawn::RightThumbUp_Press()
-{
-	UE_LOG(LogTemp, Warning, TEXT("R ThumbUp Press"));
-}
-
-void AVRPawn::RightThumbUp_Release()
-{
-	UE_LOG(LogTemp, Warning, TEXT("R ThumbUp Release"));
-}
-
-void AVRPawn::RightThumbDown_Press()
-{
-	UE_LOG(LogTemp, Warning, TEXT("R ThumbDown Press"));
-}
-
-void AVRPawn::RightThumbDown_Release()
-{
-	UE_LOG(LogTemp, Warning, TEXT("R ThumbDown Release"));
-}
-
-void AVRPawn::RightThumbLeft_Press()
-{
-	UE_LOG(LogTemp, Warning, TEXT("R ThumbLeft Press"));
-}
-
-void AVRPawn::RightThumbLeft_Release()
-{
-	UE_LOG(LogTemp, Warning, TEXT("R ThumbLeft Release"));
-}
-
-void AVRPawn::RightThumbRight_Press()
-{
-	UE_LOG(LogTemp, Warning, TEXT("R ThumbRight Press"));
-}
-
-void AVRPawn::RightThumbRight_Release()
-{
-	UE_LOG(LogTemp, Warning, TEXT("R ThumbRight Release"));
+	RightThumbButton = TB_None;
 }
 
 void AVRPawn::RightTrigger_Press()
@@ -233,56 +213,60 @@ void AVRPawn::RightThumbY(float amount)
 	RightThumbAxis.Y = amount;
 }
 
+void AVRPawn::RightThumbDirection_Press(ThumbDirectionButton direction)
+{
+	RightInteraction->DirectionButtonPress(direction);
+}
+
+void AVRPawn::RightThumbDirection_Release(ThumbDirectionButton direction)
+{
+	RightInteraction->DirectionButtonRelease(direction);
+}
+
 void AVRPawn::LeftThumb_Press()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("L Thumb Press. Axis=%.2f,%.2f"), LeftThumbAxis.X, LeftThumbAxis.Y);
-	LeftInteraction->BeginTeleport();
+	if (LeftThumbAxis.X < -THUMB_DIRECTION_BUTTON_OFFSET)
+	{
+		LeftThumbButton = TB_Left;
+	}
+	else if (LeftThumbAxis.X > THUMB_DIRECTION_BUTTON_OFFSET)
+	{
+		LeftThumbButton = TB_Right;
+	}
+	else if (LeftThumbAxis.Y < -THUMB_DIRECTION_BUTTON_OFFSET)
+	{
+		LeftThumbButton = TB_Down;
+	}
+	else if (LeftThumbAxis.Y > THUMB_DIRECTION_BUTTON_OFFSET)
+	{
+		LeftThumbButton = TB_Up;
+	}
+	else {
+		LeftThumbButton = TB_None;
+	}
+
+	if (LeftThumbButton != TB_None)
+	{
+		LeftThumbDirection_Press(LeftThumbButton);
+	}
+	else
+	{
+		LeftInteraction->BeginTeleport();
+	}
 }
 
 void AVRPawn::LeftThumb_Release()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("L Thumb Release"));
-	LeftInteraction->EndTeleport();
-}
+	if (LeftThumbButton != TB_None)
+	{
+		LeftThumbDirection_Release(LeftThumbButton);
+	}
+	else
+	{
+		LeftInteraction->EndTeleport();
+	}
 
-void AVRPawn::LeftThumbUp_Press()
-{
-	UE_LOG(LogTemp, Warning, TEXT("L ThumbUp Press"));
-}
-
-void AVRPawn::LeftThumbUp_Release()
-{
-	UE_LOG(LogTemp, Warning, TEXT("L ThumbUp Release"));
-}
-
-void AVRPawn::LeftThumbDown_Press()
-{
-	UE_LOG(LogTemp, Warning, TEXT("L ThumbDown Press"));
-}
-
-void AVRPawn::LeftThumbDown_Release()
-{
-	UE_LOG(LogTemp, Warning, TEXT("L ThumbDown Release"));
-}
-
-void AVRPawn::LeftThumbLeft_Press()
-{
-	UE_LOG(LogTemp, Warning, TEXT("L ThumbLeft Press"));
-}
-
-void AVRPawn::LeftThumbLeft_Release()
-{
-	UE_LOG(LogTemp, Warning, TEXT("L ThumbLeft Release"));
-}
-
-void AVRPawn::LeftThumbRight_Press()
-{
-	UE_LOG(LogTemp, Warning, TEXT("L ThumbRight Press"));
-}
-
-void AVRPawn::LeftThumbRight_Release()
-{
-	UE_LOG(LogTemp, Warning, TEXT("L ThumbRight Release"));
+	LeftThumbButton = TB_None;
 }
 
 void AVRPawn::LeftTrigger_Press()
@@ -315,4 +299,13 @@ void AVRPawn::LeftThumbY(float amount)
 	LeftThumbAxis.Y = amount;
 }
 
+void AVRPawn::LeftThumbDirection_Press(ThumbDirectionButton direction)
+{
+	LeftInteraction->DirectionButtonPress(direction);
+}
+
+void AVRPawn::LeftThumbDirection_Release(ThumbDirectionButton direction)
+{
+	LeftInteraction->DirectionButtonRelease(direction);
+}
 
