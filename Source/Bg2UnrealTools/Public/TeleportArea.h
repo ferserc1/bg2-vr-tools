@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/BoxComponent.h"
 #include "TeleportTargetInterface.h"
 #include "TeleportArea.generated.h"
 
@@ -24,6 +25,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VR")
+	UBoxComponent* TeleportSurface;
 
 	virtual void TeleportMove_Implementation(FHitResult hit) override;
 	virtual void EndTeleport_Implementation(FHitResult Hit) override;

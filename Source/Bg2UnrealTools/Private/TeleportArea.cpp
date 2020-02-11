@@ -4,6 +4,7 @@
 #include "TeleportArea.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "Engine/CollisionProfile.h"
 #include "GameFramework/PlayerController.h"
 
 // Sets default values
@@ -11,22 +12,26 @@ ATeleportArea::ATeleportArea()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
+	TeleportSurface = CreateDefaultSubobject<UBoxComponent>(TEXT("TeleportArea"));
+	RootComponent = TeleportSurface;
 
+	TeleportSurface->InitBoxExtent(FVector(1000.0, 1000.0, 10.0f));
+	TeleportSurface->SetCollisionProfileName(UCollisionProfile::BlockAll_ProfileName);
 }
 
 // Called when the game starts or when spawned
 void ATeleportArea::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void ATeleportArea::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
+
 void ATeleportArea::TeleportMove_Implementation(FHitResult hit)
 {
 	DrawDebugSphere(
