@@ -73,11 +73,14 @@ public:
 	void InteractWithHit(FHitResult Hit);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
-	UPrimitiveComponent * FocusComponent;
+	UObject * FocusComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
-	AActor * FocusObject;
+	UObject * FocusObject;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
 	FHitResult CurrentHit;
+
+private:
+	void CheckInteraction(UObject* InteractionObject, FHitResult Hit);
 };

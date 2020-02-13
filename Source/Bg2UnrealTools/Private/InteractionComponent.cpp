@@ -61,6 +61,10 @@ void UInteractionComponent::EndTeleport()
 	{
 		ITeleportTargetInterface::Execute_EndTeleport(FocusObject, CurrentHit);
 	}
+	if (FocusComponent != nullptr && FocusComponent->Implements<UTeleportTargetInterface>())
+	{
+		ITeleportTargetInterface::Execute_EndTeleport(FocusComponent, CurrentHit);
+	}
 	Interaction = IM_None;
 }
 
@@ -79,6 +83,10 @@ void UInteractionComponent::EndTouch()
 	{
 		ITouchTargetInterface::Execute_EndTouch(FocusObject, CurrentHit);
 	}
+	if (FocusComponent != nullptr && FocusComponent->Implements<UTouchTargetInterface>())
+	{
+		ITouchTargetInterface::Execute_EndTouch(FocusComponent, CurrentHit);
+	}
 	Interaction = IM_None;
 }
 
@@ -95,6 +103,10 @@ void UInteractionComponent::EndGrip()
 	if (FocusObject != nullptr && FocusObject->Implements<UGripTargetInterface>())
 	{
 		IGripTargetInterface::Execute_EndGrip(FocusObject, CurrentHit);
+	}
+	if (FocusComponent != nullptr && FocusComponent->Implements<UGripTargetInterface>())
+	{
+		IGripTargetInterface::Execute_EndGrip(FocusComponent, CurrentHit);
 	}
 	Interaction = IM_None;
 }
@@ -223,28 +235,41 @@ void UInteractionComponent::InteractWithHit(FHitResult Hit)
 	UPrimitiveComponent * inHitComponent = inHit.Component.Get();
 	AActor * inHitActor = Hit.Actor.Get();
 
-	if (FocusObject != nullptr)
-	{
-		if (FocusObject->Implements<UTeleportTargetInterface>() && Interaction == IM_Teleport)
-		{
-			ITeleportTargetInterface::Execute_TeleportMove(FocusObject, Hit);
-		}
-
-		if (FocusObject->Implements<UTouchTargetInterface>() && Interaction == IM_Touch)
-		{
-			ITouchTargetInterface::Execute_TouchMove(FocusObject, Hit);
-		}
-
-		if (FocusObject->Implements<UGripTargetInterface>() && Interaction == IM_Grip)
-		{
-			IGripTargetInterface::Execute_GripMove(FocusObject, Hit);
-		}
-
-		FocusObject = nullptr;
-	}
+	CheckInteraction(FocusObject, Hit);
+	CheckInteraction(FocusComponent, Hit);
+	FocusObject = nullptr;
+	FocusComponent = nullptr;
 
 	if (inHitActor != nullptr)
 	{
 		FocusObject = inHitActor;
+	}
+	if (inHitComponent != nullptr)
+	{
+		FocusComponent = inHitComponent;
+		UE_LOG(LogTemp, Warning, TEXT("Component: %s"), *inHitComponent->GetName());
+	}
+}
+
+void UInteractionComponent::CheckInteraction(UObject* InteractionObject, FHitResult Hit)
+{
+	// Hint:
+	// inHitActor->FindComponentByClass<ITeleportTargetInterface>();
+	if (InteractionObject != nullptr)
+	{
+		if (InteractionObject->Implements<UTeleportTargetInterface>() && Interaction == IM_Teleport)
+		{
+			ITeleportTargetInterface::Execute_TeleportMove(InteractionObject, Hit);
+		}
+
+		if (InteractionObject->Implements<UTouchTargetInterface>() && Interaction == IM_Touch)
+		{
+			ITouchTargetInterface::Execute_TouchMove(InteractionObject, Hit);
+		}
+
+		if (InteractionObject->Implements<UGripTargetInterface>() && Interaction == IM_Grip)
+		{
+			IGripTargetInterface::Execute_GripMove(InteractionObject, Hit);
+		}
 	}
 }
