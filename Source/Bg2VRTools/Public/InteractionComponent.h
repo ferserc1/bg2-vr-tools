@@ -81,6 +81,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
 	FHitResult CurrentHit;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
+	int ParabolicLineSteps = 50;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
+	float ParabolicTimeStep = 0.02f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
+	float ParabolicLineSpeed = 800.0f;
+
 private:
 	void CheckInteraction(UObject* InteractionObject, FHitResult Hit);
 };

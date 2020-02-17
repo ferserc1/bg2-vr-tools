@@ -1,20 +1,20 @@
 {
-    "FileVersion" : 3,
-    "FriendlyName" : "Bg2 VR Tools",
-    "Version" : 1,
-    "VersionName": "1.0",
-    "Description" : "Virtual reality C++ components.",
-    "Category" : "Bg2.VR Tools",
-    "CreatedBy" : "Fernando Serrano Carpena",
-    "CreatedByURL" : "https://www.bg2engine.org",
+  "FileVersion": 3,
+  "FriendlyName": "Bg2 VR Tools",
+  "Version": 1,
+  "VersionName": "1.0",
+  "Description": "Virtual reality C++ components.",
+  "Category": "Bg2.VR Tools",
+  "CreatedBy": "Fernando Serrano Carpena",
+  "CreatedByURL": "https://www.bg2engine.org",
 
-    "CanContainContent" : true,
+  "CanContainContent": true,
+  "Installed": true,
 
-    "Modules" :
-    [
-        {
-            "Name" : "Bg2VRTools",
-            "Type" : "Runtime"
-        }
-    ]
+  "Modules": [
+    {
+      "Name": "Bg2VRTools",
+      "Type": "Runtime"
+    }
+  ]
 }

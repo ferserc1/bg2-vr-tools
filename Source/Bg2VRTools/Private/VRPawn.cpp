@@ -8,6 +8,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/PlayerInput.h"
+#include "HMDSettings.h"
 
 static float THUMB_DIRECTION_BUTTON_OFFSET = 0.5f;
 
@@ -105,6 +106,9 @@ void AVRPawn::PreInitializeComponents()
 	else if (deviceName == "OculusHMD") {
 		UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Eye);
 	}
+
+	// Restore saved HMD settings
+	UHMDSettings::Restore(GetWorld());
 }
 
 // Called to bind functionality to input

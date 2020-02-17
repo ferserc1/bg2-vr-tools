@@ -44,7 +44,7 @@ void UTeleportAreaComponent::TeleportMove_Implementation(FHitResult hit)
 		hit.Location,
 		10.0f,
 		10,
-		FColor::Red,
+		FColor::Green,
 		false,
 		0.0f
 	);

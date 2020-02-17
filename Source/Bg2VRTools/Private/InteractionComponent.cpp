@@ -7,6 +7,8 @@
 #include "GripTargetInterface.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "HMDSettings.h"
+#include "IXRTrackingSystem.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
@@ -35,7 +37,7 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	CurrentHit = FHitResult();
 	if (Interaction == IM_Teleport)
 	{
-		CurrentHit = ParabolicLineTrace(10, 0.1f, 500.0f);
+		CurrentHit = ParabolicLineTrace(ParabolicLineSteps, ParabolicTimeStep, ParabolicLineSpeed);
 		InteractWithHit(CurrentHit);
 	}
 	else if (Interaction == IM_None)
@@ -138,32 +140,20 @@ void UInteractionComponent::DirectionButtonRelease(ThumbDirectionButton Button)
 			pawn->AddActorLocalRotation(FQuat(NewRotation), false, 0, ETeleportType::None);
 		}
 	}
-	//else if (Button == TB_Up)
-	//{
-	//	// Avanzar
-	//	auto World = GetWorld();
-	//	if (World)
-	//	{
-	//		auto PlayerController = World->GetFirstPlayerController();
-	//		auto Pawn = PlayerController->GetPawn();
-	//		auto distance = 100.0f;
-	//		FVector NewLocation = Pawn->GetActorLocation() - (GetForwardVector() * distance);
-	//		Pawn->SetActorLocation(NewLocation);
-	//	}
-	//}
-	//else if (Button == TB_Down)
-	//{
-	//	// Retroceder
-	//	auto World = GetWorld();
-	//	if (World)
-	//	{
-	//		auto PlayerController = World->GetFirstPlayerController();
-	//		auto Pawn = PlayerController->GetPawn();
-	//		auto distance = -100.0f;
-	//		FVector NewLocation = Pawn->GetActorLocation() - (GetForwardVector() * distance);
-	//		Pawn->SetActorLocation(NewLocation);
-	//	}
-	//}
+	else if (Button == TB_Up)
+	{
+		FVector pos = GEngine->XRSystem->GetBasePosition();
+		pos.Z += 2.5;
+		GEngine->XRSystem->SetBasePosition(pos);
+		UHMDSettings::Save(GetWorld());
+	}
+	else if (Button == TB_Down)
+	{
+		FVector pos = GEngine->XRSystem->GetBasePosition();
+		pos.Z -= 2.5;
+		GEngine->XRSystem->SetBasePosition(pos);
+		UHMDSettings::Save(GetWorld());
+	}
 }
 
 FHitResult UInteractionComponent::ParabolicLineTrace(int Steps, float TimeStep, float Speed)
@@ -176,6 +166,13 @@ FHitResult UInteractionComponent::ParabolicLineTrace(int Steps, float TimeStep, 
 	int inSteps = Steps;
 	FHitResult tempHit;
 
+	struct LineSegment {
+		FVector start;
+		FVector end;
+	};
+	TArray<LineSegment> Segments;
+	FColor lineColor = FColor::Red;
+
 	FCollisionQueryParams traceParams(FName(TEXT("ParabolicTrace")), true, nullptr);
 	traceParams.bTraceComplex = false;
 	for (int i = 1; i < inSteps; ++i)
@@ -186,7 +183,6 @@ FHitResult UInteractionComponent::ParabolicLineTrace(int Steps, float TimeStep, 
 			velocity.Y * timeStepIt,
 			velocity.Z * timeStepIt - timeStepIt * timeStepIt * 980.0f * 0.5f
 		) + initLoc;
-		DrawDebugLine(GetWorld(), prevLoc, end, FColor::Red, false, 0, 0, 1);
 		if (GetWorld()->LineTraceSingleByChannel(
 			tempHit,
 			prevLoc,
@@ -194,9 +190,17 @@ FHitResult UInteractionComponent::ParabolicLineTrace(int Steps, float TimeStep, 
 			ECollisionChannel::ECC_Visibility,
 			traceParams))
 		{
+			lineColor = FColor::Green;
+			Segments.Add({ prevLoc, tempHit.TraceEnd });
 			break;
 		}
+		Segments.Add({ prevLoc, end });
 		prevLoc = end;
+	}
+
+	for (auto s : Segments)
+	{
+		DrawDebugLine(GetWorld(), s.start, s.end, lineColor, false, 0, 0, 1);
 	}
 	
 	return tempHit;

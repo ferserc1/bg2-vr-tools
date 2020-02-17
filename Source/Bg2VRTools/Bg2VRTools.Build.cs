@@ -5,6 +5,9 @@ public class Bg2VRTools : ModuleRules
 {
     public Bg2VRTools(ReadOnlyTargetRules Target) :base(Target)
     {
+        
+        PrivatePCHHeaderFile = "Public/Bg2VRToolsPrivatePCH.h";
+
         PrivateIncludePaths.AddRange(new string[] { "Bg2VRTools/Private" });
         PublicIncludePaths.AddRange(new string[] { "Bg2VRTools/Public" });
 
