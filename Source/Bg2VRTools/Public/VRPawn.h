@@ -40,6 +40,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
 	bool AddControlsMapping = true;
 
+	UFUNCTION(BlueprintCallable, Category = "VR")
+	void AddFloorCalibrationOffset(float offset);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void PreInitializeComponents() override;

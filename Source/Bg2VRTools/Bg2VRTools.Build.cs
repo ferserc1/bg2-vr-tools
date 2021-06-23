@@ -11,7 +11,7 @@ public class Bg2VRTools : ModuleRules
         PrivateIncludePaths.AddRange(new string[] { "Bg2VRTools/Private" });
         PublicIncludePaths.AddRange(new string[] { "Bg2VRTools/Public" });
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "SlateCore", "HeadMountedDisplay" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "SlateCore", "HeadMountedDisplay", "UMG" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { "ImageWrapper", "RenderCore" });
     }

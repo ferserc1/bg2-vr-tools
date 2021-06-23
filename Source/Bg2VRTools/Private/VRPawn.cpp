@@ -9,6 +9,8 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "HMDSettings.h"
+#include "IXRTrackingSystem.h"
+#include "Kismet/GameplayStatics.h"
 
 static float THUMB_DIRECTION_BUTTON_OFFSET = 0.5f;
 
@@ -50,6 +52,14 @@ AVRPawn::AVRPawn()
 	RightInteraction->SetupAttachment(RightMotionController);
 }
 
+void AVRPawn::AddFloorCalibrationOffset(float offset)
+{
+	FVector pos = GEngine->XRSystem->GetBasePosition();
+	pos.Z += offset;
+	GEngine->XRSystem->SetBasePosition(pos);
+	UHMDSettings::Save(GetWorld());
+}
+
 // Called when the game starts or when spawned
 void AVRPawn::PreInitializeComponents()
 {
@@ -60,7 +70,9 @@ void AVRPawn::PreInitializeComponents()
 	{
 		TArray<FInputActionKeyMapping> controllers = {
 			// Right controller
-			{ "RightThumb", EKeys::MotionController_Right_Thumbstick, 0, 0, 0, 0 },
+			//{ "RightThumb", EKeys::MotionController_Right_Thumbstick, 0, 0, 0, 0 },
+			{ "RightThumb", EKeys::Vive_Right_Trackpad_Click, 0, 0, 0, 0 },
+
 			{ "RightThumbUp", EKeys::MotionController_Right_Thumbstick_Up, 0, 0, 0, 0 },
 			{ "RightThumbDown", EKeys::MotionController_Right_Thumbstick_Down, 0, 0, 0, 0 },
 			{ "RightThumbLeft", EKeys::MotionController_Right_Thumbstick_Left, 0, 0, 0, 0 },

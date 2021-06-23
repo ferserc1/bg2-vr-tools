@@ -10,6 +10,7 @@
 #include "HMDSettings.h"
 #include "IXRTrackingSystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values for this component's properties
 UInteractionComponent::UInteractionComponent()
@@ -42,7 +43,7 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	}
 	else if (Interaction == IM_None)
 	{
-		if (StraightLineTrace(100.0f, CurrentHit))
+		if (StraightLineTrace(250.0f, CurrentHit))
 		{
 			InteractWithHit(CurrentHit);
 		}
@@ -90,6 +91,11 @@ void UInteractionComponent::EndTouch()
 		ITouchTargetInterface::Execute_EndTouch(FocusComponent, CurrentHit);
 	}
 	Interaction = IM_None;
+
+	if (FocusWidget != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Perform interaction with widget"));
+	}
 }
 
 void UInteractionComponent::BeginGrip()
@@ -142,17 +148,19 @@ void UInteractionComponent::DirectionButtonRelease(ThumbDirectionButton Button)
 	}
 	else if (Button == TB_Up)
 	{
-		FVector pos = GEngine->XRSystem->GetBasePosition();
-		pos.Z += 2.5;
-		GEngine->XRSystem->SetBasePosition(pos);
-		UHMDSettings::Save(GetWorld());
+		if (OnUpButtonPressed.IsBound())
+		{
+			OnUpButtonPressed.Broadcast();
+			UE_LOG(LogTemp, Warning, TEXT("Button Up"));
+		}
 	}
 	else if (Button == TB_Down)
 	{
-		FVector pos = GEngine->XRSystem->GetBasePosition();
-		pos.Z -= 2.5;
-		GEngine->XRSystem->SetBasePosition(pos);
-		UHMDSettings::Save(GetWorld());
+		if (OnDownButtonPressed.IsBound())
+		{
+			OnDownButtonPressed.Broadcast();
+			UE_LOG(LogTemp, Warning, TEXT("Button Down"));
+		}
 	}
 }
 
@@ -225,6 +233,9 @@ bool UInteractionComponent::StraightLineTrace(float distance, FHitResult& result
 		{
 			DrawDebugLine(GetWorld(), initLoc, initLoc + (GetForwardVector() * tempHit.Distance), FColor::Yellow, false, 0, 0, 1);
 		}
+		else if (Cast<UWidgetComponent>(result.Component)) {
+			DrawDebugLine(GetWorld(), initLoc, initLoc + (GetForwardVector() * tempHit.Distance), FColor::Orange, false, 0, 0, 1);
+		}
 		return true;
 	}
 	else
@@ -251,7 +262,6 @@ void UInteractionComponent::InteractWithHit(FHitResult Hit)
 	if (inHitComponent != nullptr)
 	{
 		FocusComponent = inHitComponent;
-		UE_LOG(LogTemp, Warning, TEXT("Component: %s"), *inHitComponent->GetName());
 	}
 }
 
@@ -275,5 +285,7 @@ void UInteractionComponent::CheckInteraction(UObject* InteractionObject, FHitRes
 		{
 			IGripTargetInterface::Execute_GripMove(InteractionObject, Hit);
 		}
+		
+		FocusWidget = Cast<UWidgetComponent>(Hit.Component);
 	}
 }

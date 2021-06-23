@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/Actor.h"
 #include "InteractionMode.h"
 #include "InteractionComponent.generated.h"
@@ -18,6 +19,8 @@ enum ThumbDirectionButton {
 	TB_Right
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDownButtonPressed);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUpButtonPressed);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BG2VRTOOLS_API UInteractionComponent : public USceneComponent
@@ -82,6 +85,9 @@ public:
 	FHitResult CurrentHit;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
+	UWidgetComponent * FocusWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
 	int ParabolicLineSteps = 50;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
@@ -89,6 +95,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
 	float ParabolicLineSpeed = 800.0f;
+
+	UPROPERTY(BlueprintAssignable, Category = "VR")
+	FDownButtonPressed OnDownButtonPressed;
+
+	UPROPERTY(BlueprintAssignable, Category = "VR")
+	FUpButtonPressed OnUpButtonPressed;
 
 private:
 	void CheckInteraction(UObject* InteractionObject, FHitResult Hit);
