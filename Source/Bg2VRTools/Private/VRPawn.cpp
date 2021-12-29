@@ -73,23 +73,21 @@ void AVRPawn::PreInitializeComponents()
 			//{ "RightThumb", EKeys::MotionController_Right_Thumbstick, 0, 0, 0, 0 },
 			{ "RightThumb", EKeys::Vive_Right_Trackpad_Click, 0, 0, 0, 0 },
 
-			{ "RightThumbUp", EKeys::MotionController_Right_Thumbstick_Up, 0, 0, 0, 0 },
-			{ "RightThumbDown", EKeys::MotionController_Right_Thumbstick_Down, 0, 0, 0, 0 },
-			{ "RightThumbLeft", EKeys::MotionController_Right_Thumbstick_Left, 0, 0, 0, 0 },
-			{ "RightThumbRight", EKeys::MotionController_Right_Thumbstick_Right, 0, 0, 0, 0 },
-			{ "RightTrigger", EKeys::MotionController_Right_Trigger, 0, 0, 0, 0 },
-			{ "RightGrip", EKeys::MotionController_Right_Grip1, 0, 0, 0, 0 },
-			{ "RightGrip", EKeys::MotionController_Right_Grip2, 0, 0, 0, 0 },
+			{ "RightThumbUp", EKeys::Vive_Right_Trackpad_Up, 0, 0, 0, 0 },
+			{ "RightThumbDown", EKeys::Vive_Right_Trackpad_Down, 0, 0, 0, 0 },
+			{ "RightThumbLeft", EKeys::Vive_Right_Trackpad_Left, 0, 0, 0, 0 },
+			{ "RightThumbRight", EKeys::Vive_Right_Trackpad_Right, 0, 0, 0, 0 },
+			{ "RightTrigger", EKeys::Vive_Right_Trigger_Click, 0, 0, 0, 0 },
+			{ "RightGrip", EKeys::Vive_Right_Grip_Click, 0, 0, 0, 0 },
 
 			// Left controller
-			{ "LeftThumb", EKeys::MotionController_Left_Thumbstick, 0, 0, 0, 0 },
-			{ "LeftThumbUp", EKeys::MotionController_Left_Thumbstick_Up, 0, 0, 0, 0 },
-			{ "LeftThumbDown", EKeys::MotionController_Left_Thumbstick_Down, 0, 0, 0, 0 },
-			{ "LeftThumbLeft", EKeys::MotionController_Left_Thumbstick_Left, 0, 0, 0, 0 },
-			{ "LeftThumbRight", EKeys::MotionController_Left_Thumbstick_Right, 0, 0, 0, 0 },
-			{ "LeftTrigger", EKeys::MotionController_Left_Trigger, 0, 0, 0, 0 },
-			{ "LeftGrip", EKeys::MotionController_Left_Grip1, 0, 0, 0, 0 },
-			{ "LeftGrip", EKeys::MotionController_Left_Grip2, 0, 0, 0, 0 }
+			{ "LeftThumb", EKeys::Vive_Left_Trackpad_Click, 0, 0, 0, 0 },
+			{ "LeftThumbUp", EKeys::Vive_Left_Trackpad_Up, 0, 0, 0, 0 },
+			{ "LeftThumbDown", EKeys::Vive_Left_Trackpad_Down, 0, 0, 0, 0 },
+			{ "LeftThumbLeft", EKeys::Vive_Left_Trackpad_Left, 0, 0, 0, 0 },
+			{ "LeftThumbRight", EKeys::Vive_Left_Trackpad_Right, 0, 0, 0, 0 },
+			{ "LeftTrigger", EKeys::Vive_Left_Trigger_Click, 0, 0, 0, 0 },
+			{ "LeftGrip", EKeys::Vive_Left_Grip_Click, 0, 0, 0, 0 },
 		};
 
 		for (auto& inputKey : controllers)
@@ -98,10 +96,10 @@ void AVRPawn::PreInitializeComponents()
 		}
 
 		TArray<FInputAxisKeyMapping> controllersAxis = {
-			{ "RightThumbX", EKeys::MotionController_Right_Thumbstick_X, 1.0f },
-			{ "RightThumbY", EKeys::MotionController_Right_Thumbstick_Y, -1.0f },
-			{ "LeftThumbX", EKeys::MotionController_Left_Thumbstick_X, 1.0f },
-			{ "LeftThumbY", EKeys::MotionController_Left_Thumbstick_Y, -1.0f }
+			{ "RightThumbX", EKeys::ValveIndex_Right_Thumbstick_X, 1.0f },
+			{ "RightThumbY", EKeys::ValveIndex_Right_Thumbstick_Y, -1.0f },
+			{ "LeftThumbX", EKeys::ValveIndex_Left_Thumbstick_X, 1.0f },
+			{ "LeftThumbY", EKeys::ValveIndex_Left_Thumbstick_Y, -1.0f }
 		};
 
 		for (auto& inputAxis : controllersAxis)
